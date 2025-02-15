@@ -1,0 +1,16 @@
+<!-- profile_picture_upload.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Change Profile Picture</title>
+</head>
+<body>
+    <h1>Change Profile Picture</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+         {{ form.profile_image }}
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+
+{% block content%}
+
+
+
+<script>
+	function getLocation() {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(showPosition, showError);
+		} else {
+			alert("Geolocation is not supported by this browser.");
+		}
+	}
+
+	function showPosition(position) {
+		const latitude = position.coords.latitude;
+		const longitude = position.coords.longitude;
+
+		// Send the data to Django backend
+		fetch('/save-location/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': getCookie('csrftoken'), // Ensure you have CSRF token handling
+			},
+			body: JSON.stringify({
+				latitude: latitude,
+				longitude: longitude
+			})
+		}).then(response => {
+			if (response.ok) {
+				alert("Location saved successfully!");
+			} else {
+				response.json().then(data => alert("Failed to save location: " + data.status));
+			}
+		}).catch(error => {
+			alert("Failed to save location: " + error);
+		});
+	}
+
+	function showError(error) {
+		switch(error.code) {
+			case error.PERMISSION_DENIED:
+				alert("User denied the request for Geolocation.");
+				break;
+			case error.POSITION_UNAVAILABLE:
+				alert("Location information is unavailable.");
+				break;
+			case error.TIMEOUT:
+				alert("The request to get user location timed out.");
+				break;
+			case error.UNKNOWN_ERROR:
+				alert("An unknown error occurred.");
+				break;
+		}
+	}
+
+	function getCookie(name) {
+		let cookieValue = null;
+		if (document.cookie && document.cookie !== '') {
+			const cookies = document.cookie.split(';');
+			for (let i = 0; i < cookies.length; i++) {
+				const cookie = cookies[i].trim();
+				if (cookie.substring(0, name.length + 1) === (name + '=')) {
+					cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+					break;
+				}
+			}
+		}
+		return cookieValue;
+	}
+</script>
+
+<!-- ========================= SECTION MAIN ========================= -->
+<section class="section-intro padding-y-sm">
+<div class="container">
+
+<div class="intro-banner-wrap">
+	<img src="{% static 'images/banners/1.jpg' %}" class="img-fluid rounded">
+</div>
+
+</div> <!-- container //  -->
+</section>
+<!-- ========================= SECTION MAIN END// ========================= -->
+
+<!-- ========================= SECTION  ========================= -->
+<section class="section-name padding-y-sm">
+<div class="container">
+
+<header class="section-heading">
+	<a href="#" class="btn btn-outline-primary float-right">See all</a>
+	<h3 class="section-title">Popular products</h3>
+</header><!-- sect-heading -->
+
+
+
+
+  <!-- End Recent Blog Posts Section -->
+<!-- ========================= SECTION  END// ========================= -->
+
+
+
+
+
+</body>
+</html>
+{% endblock%}

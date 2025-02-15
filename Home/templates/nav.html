@@ -1,0 +1,129 @@
+{% load static%}   
+<header class="section-header">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{% url 'home' %}">mySite</a>
+        {% if user.is_authenticated %}
+            <small class="title text-muted">Welcome {{ user.first_name}}!</small>
+                            {% else %}
+            <small class="title text-muted">Welcome guest!</small>
+         {% endif %}
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        
+      
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            {% if user.is_authenticated %}
+            <li class="nav-item active">
+              <a class="nav-link" href="#">Update Profile<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'page' %}">Page</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'settings' %}">Settings</a>
+              </li>
+            
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'login' %}">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'register' %}">Register</a>
+            </li>
+            {% endif %}
+            {% if user.is_superadmin %}
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/">Admin</a>
+            </li>
+            {% endif %}
+
+          </ul>
+          <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          </form>
+        </div>
+    </nav>
+    
+    
+    
+    
+</header> <!-- section-header.// -->
+    <body>
+        <script>
+            document.addEventListener('DOMContentLoaded', (event) => {
+                getLocation();
+            });
+    
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPosition, showError);
+                } else {
+                    alert("Geolocation is not supported by this browser.");
+                }
+            }
+    
+            function showPosition(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+    
+                // Send the data to Django backend
+                fetch('/save-location/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'), // Ensure you have CSRF token handling
+                    },
+                    body: JSON.stringify({
+                        latitude: latitude,
+                        longitude: longitude
+                    })
+                }).then(response => {
+                    if (response.ok) {
+                        console.log("Location saved successfully!");
+                    } else {
+                        response.json().then(data => console.error("Failed to save location: " + data.status));
+                    }
+                }).catch(error => {
+                    console.error("Failed to save location: " + error);
+                });
+            }
+    
+            function showError(error) {
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        alert("User denied the request for Geolocation.");
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        alert("Location information is unavailable.");
+                        break;
+                    case error.TIMEOUT:
+                        alert("The request to get user location timed out.");
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        alert("An unknown error occurred.");
+                        break;
+                }
+            }
+    
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        </script>
+    </body>

@@ -1,0 +1,19 @@
+<div style="color: red;">{{form.email.errors}}
+    {{form.non_field_errors}}</div>
+
+
+{% if messages %}
+
+    {% for message in messages %}
+    <div id="message" class="container">
+        <div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %} role="alert">
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %} error: {% endif %}
+            {{ message }}
+            
+            
+        </div>
+    </div>
+    
+    {% endfor %}
+
+{% endif %}
